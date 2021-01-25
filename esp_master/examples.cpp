@@ -1,4 +1,5 @@
 #include "examples.h"
+#include "hal.h"
 
 void timerCallbackTest();
 void timerCallbackTest2();
