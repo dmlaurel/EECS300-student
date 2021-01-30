@@ -14,13 +14,13 @@ void testTimer() {
 
 void testADC() {
     setUpADC(100000);
-    setUpTimer(0, adcCallbackTest2, 4000);
+    setUpTimer(0, timerCallbackTest2, 4000);
     startTimer(0);
 }
 
 void testUART() {
     setUpUART(1, 9600);
-    setUpTimer(0, adcCallbackTest3, 10000);
+    setUpTimer(0, timerCallbackTest3, 100000);
     startTimer(0);
 }
 
