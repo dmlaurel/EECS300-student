@@ -31,10 +31,10 @@ void startTimer(uint8_t timer_index);
 void stopTimer(uint8_t timer_index);
 void changeTimerPeriod(uint8_t timer_index, uint32_t period);
 
-void setUpDAC(uint8_t pin, uint8_t channel); //only certain pins can be used for DAC, channel should be 0,1,2
-void writeToDAC(uint8_t channel, uint8_t value);
+void setUpDAC(); //GPIO pin 25
+void writeToDAC(uint8_t value);
 
-void setUpADC(uint32_t period); //period is in us
+void setUpADC(); //period is in us
 uint16_t readADC();
 
 //void setUpDMAADC(uint32_t period); //period is in us
@@ -45,10 +45,10 @@ bool readFromDigitalPin(uint8_t pin);
 void setUpInputPin(uint8_t pin);
 void setUpOutputPin(uint8_t pin);
 
-void setUpUART(uint8_t uart_channel, uint16_t baud_rate); // channel is 1,2, or 3
+void setUpUART(uint8_t uart_channel, uint16_t baud_rate);
 void writeToUART(uint8_t uart_channel, char message[]);
 void readFromUART(uint8_t uart_channel, char message[]);
 
-void setUpI2C(); //Needs fixing
-void writeByteToI2C(uint8_t slave_address); //Needs fixing
-uint8_t* readByteFromI2C(uint8_t slave_address, size_t size); //Needs fixing
+void setUpI2C();
+void writeByteToI2C(uint8_t slave_address);
+uint8_t* readByteFromI2C(uint8_t slave_address, size_t size);

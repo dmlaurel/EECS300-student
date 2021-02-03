@@ -6,8 +6,10 @@
 #include <driver/i2s.h>
 #include <driver/adc.h>
 #include "driver/gpio.h"
+#include <driver/adc.h>
 #include "driver/uart.h"
 #include "driver/i2c.h"
+#include <driver/dac.h>
 #include <stdio.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -17,11 +19,11 @@
 //#include "soc/uart_struct.h"
 //#include "freertos/queue.h"
 
-#define ADC_SAMPLES_PER_READ 100
+#define ADC_SAMPLES_PER_READ 20
 #define ADC_INPUT ADC1_CHANNEL_4 //pin 32
 #define OUTPUT_PIN 27
 #define OUTPUT_VALUE 3800
-#define READ_DELAY 2 //microseconds
+#define READ_DELAY 1 //microseconds
 #define BUF_SIZE (1024)
 
 
@@ -180,13 +182,12 @@ void changeTimerPeriod(uint8_t timer_index, uint32_t period) {
     }
 }
 
-void setUpDAC(uint8_t pin, uint8_t channel) {
-  sigmaDeltaSetup(channel, 312500);
-  sigmaDeltaAttachPin(pin, channel);
+void setUpDAC() {
+  dac_output_enable(DAC_CHANNEL_1);
 }
 
-void writeToDAC(uint8_t channel, uint8_t value) {
-  sigmaDeltaWrite(channel, value);
+void writeToDAC(uint8_t value) {
+  dac_output_voltage(DAC_CHANNEL_1, value);
 }
 
 void i2sInit()
@@ -242,23 +243,27 @@ void reader(void *pvParameters) {
   }
 }
 
-void setUpADC(uint32_t period) {
-  i2s_sample_rate = period;
+void setUpADC() {
+  /*i2s_sample_rate = period;
   i2sInit();
   xTaskCreatePinnedToCore(reader, "ADC_reader", 2048, NULL, 1, NULL, 1);
   //setUpTimer(3, f, period);
+*/
+  adc1_config_width(ADC_WIDTH_BIT_12);
+  adc1_config_channel_atten(ADC1_CHANNEL_0,ADC_ATTEN_DB_11);
   //startTimer(3);
 }
 
+uint16_t val2;
 uint16_t readADC() {
   /*if (xSemaphoreTake(adc_semaphore, 0) == pdTRUE){
     portENTER_CRITICAL(&adc_mux);
     prev_adc_reading = adc_reading;
     portEXIT_CRITICAL(&adc_mux); 
-  }*/
+*/
+  val2 = adc1_get_raw(ADC1_CHANNEL_0);
 
-  return adc_reading;
-  //return adc_reading;
+  return val2;
 }
 
 void writeToDigitalPin(uint8_t pin, bool digital_output) {
