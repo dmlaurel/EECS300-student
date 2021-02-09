@@ -1,11 +1,17 @@
 #include "hal.h"
 #include "fft.h"
 #include <Arduino.h>
+#include "web_communication.h"
+#include "ArduinoJson.h"
 
 void timerCallbackTest();
 void timerCallbackTest2();
 void timerCallbackTest3();
 float runFFTOnce(double fft_signal_p[], float total_time_p);
+
+
+DynamicJsonDocument doc(1024);
+int i = 0;
 
 uint16_t val = 0;
 uint8_t new_val = 0;
@@ -90,4 +96,20 @@ float runFFTOnce(double fft_signal_p[], float total_time_s) { //total_time_s is 
   fft_destroy(real_fft_plan);
   return fundamental_freq;
   
+}
+
+void setUpWebComm() {
+  setUpWifi();
+  setUpPostServer();
+  doc["chair"] = "blue";
+}
+
+void runWebComm() {
+  delay(10);
+  if (i > 100) {
+    sendPostRequest(doc);
+    i = 0;
+  }
+  runPostServer();
+  i++;
 }

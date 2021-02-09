@@ -34,7 +34,7 @@ void changeTimerPeriod(uint8_t timer_index, uint32_t period);
 void setUpDAC(); //GPIO pin 25
 void writeToDAC(uint8_t value);
 
-void setUpADC(); //period is in us
+void setUpADC(); //period is in us, GPIO pin 36
 uint16_t readADC();
 
 //void setUpDMAADC(uint32_t period); //period is in us

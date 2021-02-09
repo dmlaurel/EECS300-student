@@ -2,9 +2,9 @@
 
 void setup() {
   Serial.begin(115200);
+  setUpWebComm();
 }
 
 void loop() {
-  Serial.println("hello");
-  delay(1000);
+  runWebComm();
 }
