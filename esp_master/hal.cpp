@@ -8,7 +8,7 @@
 #include "driver/gpio.h"
 #include <driver/adc.h>
 #include "driver/uart.h"
-#include "driver/i2c.h"
+//#include "driver/i2c.h"
 #include <driver/dac.h>
 #include <stdio.h>
 #include "freertos/FreeRTOS.h"
@@ -18,6 +18,8 @@
 //#include "nvs_flash.h"
 //#include "soc/uart_struct.h"
 //#include "freertos/queue.h"
+#include <Wire.h>
+
 
 #define ADC_SAMPLES_PER_READ 20
 #define ADC_INPUT ADC1_CHANNEL_4 //pin 32
@@ -365,40 +367,51 @@ void readFromUART(uint8_t uart_channel, char message[]) {
   message = (char*) data;
 }
 
-void setUpI2C() {
-  i2c_port_t i2c_master_port = (i2c_port_t)0;
-  i2c_config_t conf = {
-      .mode = I2C_MODE_MASTER,
-      .sda_io_num = (gpio_num_t) I2C_MASTER_SDA_IO,
-      .sda_pullup_en = GPIO_PULLUP_ENABLE,
-      .scl_io_num = (gpio_num_t) I2C_MASTER_SCL_IO,
-      .scl_pullup_en = GPIO_PULLUP_ENABLE
-      // .clk_flags = 0,          /*!< Optional, you can use I2C_SCLK_SRC_FLAG_* flags to choose i2c source clock here. */
-  };
+uint8_t deviceAddr;
+uint8_t CTRL_REG1_val;
 
-  conf.master.clk_speed = 10000;
-
-  esp_err_t err = i2c_param_config(i2c_master_port, &conf);
-  i2c_driver_install(i2c_master_port, conf.mode, I2C_MASTER_RX_BUF_DISABLE, I2C_MASTER_TX_BUF_DISABLE, 0);
+void setUpI2C(uint8_t addr) {
+  deviceAddr = addr;
+  Wire.begin();
+  CTRL_REG1_val = 0b01110111;//set to normal mode, 400Hz, all 3 axes anabled
+  writeToI2C(0x20, &CTRL_REG1_val, 1);// this is the bare minimum configuration to get it working. 
 }
 
-void writeByteToI2C(uint8_t slave_address) {
-  
-}
-
-uint8_t* readByteFromI2C(uint8_t slave_address, size_t size) {
-    uint8_t *data_rd = (uint8_t *)malloc(size);
-    i2c_cmd_handle_t cmd = i2c_cmd_link_create();
-    i2c_master_start(cmd);
-    i2c_master_write_byte(cmd, (slave_address << 1) | READ_BIT, ACK_CHECK_EN);
-    if (size > 1) {
-        i2c_master_read(cmd, data_rd, size - 1, (i2c_ack_type_t) ACK_VAL);
+void writeToI2C(uint8_t subAddr, uint8_t * txDataBuffer, uint8_t numBytes) {
+  //void LIS3DHwrite(uint8_t subAddr, uint8_t * txDataBuffer, uint8_t numBytes)
+   // {
+    Wire.beginTransmission(deviceAddr);
+    Wire.write(subAddr);
+    for(uint8_t i_i2c = 0; i_i2c < numBytes; ++i_i2c)
+    {
+      Wire.write(txDataBuffer[i_i2c]);
     }
-    i2c_master_read_byte(cmd, data_rd + size - 1, (i2c_ack_type_t) NACK_VAL);
-    i2c_master_stop(cmd);
-    i2c_port_t p =  (i2c_port_t) 0;
-    esp_err_t ret = i2c_master_cmd_begin(p, cmd, 1000 / portTICK_RATE_MS);
-    i2c_cmd_link_delete(cmd);
+    Wire.endTransmission(true);
+   // }
+}
 
-    return data_rd;
+void readI2C(uint8_t subAddr, uint8_t * rxDataBuffer, uint8_t numBytes) {
+   
+    Wire.beginTransmission(deviceAddr);
+    Wire.write(subAddr);
+    Wire.endTransmission(true);
+    Wire.requestFrom(deviceAddr, numBytes, true);// this is technically wrong since the LIS3DH expects a repeated sttart (instead of a stop condiditon)
+                                                    // between the writing of the sub address and the subsequent reads
+                                                    // however, this still works since when you start a new read, the LIS3DH uses the last written sub address
+    delay(100);//let the warp field stabilize
+    uint8_t i_i2c = 0;
+    while(Wire.available() && (i_i2c < numBytes) )
+    {
+      rxDataBuffer[i_i2c++] = Wire.read();
+    }
+}
+
+void setUpPWM(uint8_t pin, uint8_t duty) {
+  ledcSetup(0, 100, 8);
+  ledcAttachPin(pin, 0);
+  ledcWrite(0, duty);
+}
+
+void changePWMDuty(uint8_t channel, uint8_t duty) {
+  ledcWrite(channel, duty);
 }

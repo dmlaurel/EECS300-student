@@ -49,6 +49,9 @@ void setUpUART(uint8_t uart_channel, uint16_t baud_rate);
 void writeToUART(uint8_t uart_channel, char message[]);
 void readFromUART(uint8_t uart_channel, char message[]);
 
-void setUpI2C();
-void writeByteToI2C(uint8_t slave_address);
-uint8_t* readByteFromI2C(uint8_t slave_address, size_t size);
+void setUpI2C(uint8_t addr); //address of LIS
+void writeToI2C(uint8_t subAddr, uint8_t * txDataBuffer, uint8_t numBytes);
+void readI2C(uint8_t subAddr, uint8_t * rxDataBuffer, uint8_t numBytes);
+
+void setUpPWM(uint8_t pin, uint8_t duty); // duty is out of 255;
+void changePWMDuty(uint8_t channel, uint8_t duty);
