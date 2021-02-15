@@ -129,5 +129,5 @@ void loopI2C() {
 }
 
 void testI2CSetup() {
-  setUpI2C(???); // find the device address in it's data sheet. Should be in hex, e.g. 0xAB
+  setUpI2C(0x18); 
 }*/
