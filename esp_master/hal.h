@@ -47,7 +47,7 @@ void setUpOutputPin(uint8_t pin);
 
 void setUpUART(uint8_t uart_channel, uint16_t baud_rate);
 void writeToUART(uint8_t uart_channel, char message[]);
-void readFromUART(uint8_t uart_channel, char message[]);
+void readFromUART(uint8_t uart_channel, String &message);
 
 void setUpI2C(uint8_t addr); //address of LIS
 void writeToI2C(uint8_t subAddr, uint8_t * txDataBuffer, uint8_t numBytes);

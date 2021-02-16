@@ -297,15 +297,16 @@ void setUpUART(uint8_t uart_channel, uint16_t baud_rate) {
   uart_port_t uart_port_num;
   int tx = 0;
   int rx = 0;
-
+  Serial.print("cont");
+  Serial.println(uart_channel);
   if (uart_channel == 1) {
     uart_port_num = UART_NUM_1;
     tx = 17;
     rx = 16;
-  } else if(uart_channel == 2) {
-    uart_port_num = UART_NUM_2;
-    tx = 10;
-    rx = 9;
+  } else if(uart_channel == 0) {
+    uart_port_num = UART_NUM_0;
+    tx = 1;
+    rx = 3;
   } else return;
 
   uart_config_t uart_config = {
@@ -347,7 +348,7 @@ void writeToUART(uint8_t uart_channel, char message[]) {
   uart_write_bytes(uart_port_num_temp, (const char*)message, strlen(message));
 }
 
-void readFromUART(uint8_t uart_channel, char message[]) {
+void readFromUART(uint8_t uart_channel, String &message) {
   //const int uart_num = UART2;
   uart_port_t uart_port_num_temp;
 
@@ -357,11 +358,12 @@ void readFromUART(uint8_t uart_channel, char message[]) {
     uart_port_num_temp = UART_NUM_2;
   } else return;
   
-  uart_write_bytes(uart_port_num_temp, (const char*)message, strlen(message));
+  //uart_write_bytes(uart_port_num_temp, (const char*)message, strlen(message));
   
   uint8_t data[128];
   int length = 0;
   ESP_ERROR_CHECK(uart_get_buffered_data_len(uart_port_num_temp, (size_t*)&length));
+
   length = uart_read_bytes(uart_port_num_temp, data, length, 100);
 
   message = (char*) data;
