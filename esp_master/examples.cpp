@@ -9,6 +9,7 @@ void timerCallbackTest2();
 void timerCallbackTest3();
 //float runFFTOnce(double fft_signal_p[], float total_time_p);
 
+int i_2 = 0;
 
 DynamicJsonDocument doc(1024);
 int i = 0;
@@ -17,7 +18,7 @@ uint16_t val = 0;
 uint8_t new_val = 0;
 
 void testTimer() {
-    setUpTimer(0, timerCallbackTest,  100000);
+    setUpTimer(0, timerCallbackTest,  2);
     startTimer(0);
 }
 
@@ -33,7 +34,18 @@ void testUART() {
 }
 
 void timerCallbackTest() {
-    Serial.println("hello world");
+
+    if (i > 10000) {
+      i = 0;
+      changeTimerPeriod(0,100000);
+    } else {
+      if (i == 0) {
+        //Serial.println("read");
+        changeTimerPeriod(0, 2);
+      }
+    }
+
+    i_2 = i_2 + 1;
 }
 
 void timerCallbackTest2() {
